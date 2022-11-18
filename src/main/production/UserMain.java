@@ -1,28 +1,18 @@
 package main.production;
 
-import javax.naming.ldap.StartTlsRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class UserMain {
     final static String INET_ADDR = "224.0.0.3";
     final static int PORT = 8888;
 
-//    public static MulticastSocket getSocket() throws IOException {
-//        MulticastSocket socket = new MulticastSocket(PORT);
-//        socket.joinGroup(new InetSocketAddress(INET_ADDR, PORT), null);
-//        return socket;
-//    }
 
 
     public static void main(String[] args) {
@@ -57,31 +47,6 @@ public class UserMain {
                 }
             }
 
-            //sender.stop();
-//            Eventik msg;
-//            DatagramPacket msgPacket;
-//
-//            msg = new Eventik(id, Eventik.State.JOIN);
-//            msgPacket = new DatagramPacket(msg.getBytes(),
-//                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
-//            UDPSocket.send(msgPacket);
-//
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//            System.out.println(validUsers);
-//
-//            msg = new Eventik(id, Eventik.State.DISCONNECT);
-//            msgPacket = new DatagramPacket(msg.getBytes(),
-//                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
-//            UDPSocket.send(msgPacket);
-//
-//
-//            System.out.println("DONE, map: " + validUsers);
-//
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
