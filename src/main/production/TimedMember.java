@@ -3,13 +3,13 @@ package main.production;
 
 import java.util.*;
 
-public class TimedMember {
+public class TimedMember<T> {
 
-    int field;
+    T field;
     long lastPingTime;
     Timer timer;
-    TimedMember me;
-    Set<TimedMember> set = null;
+    TimedMember<T> me;
+    Set<TimedMember<T>> set = null;
     long TTL;
     TimerTask myTask = new TimerTask() {
 
@@ -27,21 +27,21 @@ public class TimedMember {
             }
         }
     };
-    public TimedMember(int f, long time, long timeToLive){
+    public TimedMember(T f, long time, long timeToLive){
         this(f, time);
         TTL = timeToLive;
     }
-    public TimedMember(int f, long time){
+    public TimedMember(T f, long time){
         field = f;
         lastPingTime = time;
         me = this;
         TTL = 1000;
     }
-    public TimedMember(int f){
+    public TimedMember(T f){
         this(f, new Date().getTime());
     }
 
-    public void addToSet(Set<TimedMember> set_){
+    public void addToSet(Set<TimedMember<T>> set_){
         set=set_;
         if (set.add(this)){
             timer = new Timer(true);
@@ -52,8 +52,8 @@ public class TimedMember {
 
     @Override
     public String toString(){
-        return "f=" + field + ";LPT=" + lastPingTime + ";TWP=" +
-                (double)(new Date().getTime() - lastPingTime)/1000;
+        return "" + field/* + ";LPT=" + lastPingTime + ";TWP=" +
+                (double)(new Date().getTime() - lastPingTime)/1000*/;
     }
     @Override
     public int hashCode() {
@@ -65,7 +65,7 @@ public class TimedMember {
         if (this==obj) return true;
         if (!(obj instanceof TimedMember)) return false;
         final TimedMember other = (TimedMember) obj;
-        if(this.field != other.field) return false;
+        if(!this.field.equals(other.field)) return false;
 
         other.lastPingTime = lastPingTime = Math.max(lastPingTime, other.lastPingTime);
         return true;

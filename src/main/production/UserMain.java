@@ -24,9 +24,9 @@ public class UserMain {
             InetSocketAddress address = new InetSocketAddress(INET_ADDR, PORT);
             socket.joinGroup(address, null);
             System.out.println("Choose your ID");
+
             int id = Integer.parseInt(reader.readLine());
-//            Map<Integer, Integer> userValidityMap = new HashMap<>();
-            Set<TimedMember> validUsers = new HashSet<>();
+            Set<TimedMember<Integer>> validUsers = new HashSet<>();
             UserListener listener = new UserListener(socket, id, validUsers);
             listener.start();
 
@@ -34,16 +34,16 @@ public class UserMain {
             sender.start();
 
             String command = "";
+            System.out.println("enter <see> to see active users\nenter <stop> to disconnect ");
             while (!command.equals("stop")) {
-                System.out.println("enter command");
                 command = reader.readLine();
                 if (command.equals("stop")) {
                     sender.stop();
                     listener.close();
-                    System.out.println("Everything is closed\nSet: " + validUsers);
+                    System.out.println("Disconnected\nList: " + validUsers);
                 }
                 else if(command.equals("see")){
-                    System.out.println("validUsers: " + validUsers);
+                    System.out.println("Active users: " + validUsers);
                 }
             }
 
