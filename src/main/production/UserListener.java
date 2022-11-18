@@ -3,21 +3,20 @@ package main.production;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
-import java.sql.Time;
-import java.util.HashSet;
-import java.util.Map;
+import java.net.SocketAddress;
 import java.util.Set;
 
 public class UserListener {
 
     static MulticastSocket socket;
     Thread receiver;
-    final int id;
+//    final int id;
+    final SocketAddress mySocketAddress;
 //    Map<Integer, Integer> userValidityMap;
-    Set<TimedMember<Integer>> validUsers;// Integer ->
-    public UserListener(MulticastSocket s, int id_, Set<TimedMember<Integer>> set){
+    Set<TimedMember<SocketAddress>> validUsers;// Integer ->
+    public UserListener(MulticastSocket s, SocketAddress sa, Set<TimedMember<SocketAddress>> set){
         if(socket == null) socket = s;
-        id = id_;
+        mySocketAddress = sa;
 //        userValidityMap = m;
         validUsers = set;
         receiver = new Thread(() -> {
@@ -26,25 +25,28 @@ public class UserListener {
             try {
                 while(true) {
                     socket.receive(msgPacket);
-//                    System.out.println(msgPacket.getSocketAddress()); - это должно быть полем TimedMember
+//                    System.out.println(msgPacket.getSocketAddress());//- это должно быть полем TimedMember
                     Eventik msg = Eventik.getEventik(buf);
-
+                    SocketAddress received = msgPacket.getSocketAddress();
                     if(msg.message == Eventik.State.DISCONNECT) {
 //                        userValidityMap.remove(msg.senderId);
-                        validUsers.remove(new TimedMember<Integer>(msg.senderId));
-                        if (msg.senderId == id) break;
-                        System.out.println("User " + msg.senderId + " just disconnected." +
+                        validUsers.remove(new TimedMember<SocketAddress>(received));
+                        if (received.equals(mySocketAddress)) break;
+                        System.out.println("User " + received + " just disconnected." +
                                 "\nActive users: " + validUsers);
+//                        System.out.println("Received:" + received + "\nMy address:" + mySocketAddress);
                     }
                     else if (msg.message == Eventik.State.JOIN || msg.message == Eventik.State.PING){
-                        new TimedMember<Integer>(msg.senderId).addToSet(validUsers);
-                        if (msg.message == Eventik.State.JOIN)
-                            System.out.println("User " + msg.senderId + " just joined!" +
+                        new TimedMember<SocketAddress>(received).addToSet(validUsers);
+                        if (msg.message == Eventik.State.JOIN) {
+                            System.out.println("User " + received + " just joined!" +
                                     "\nActive users: " + validUsers);
+                            System.out.flush();
+                        }
                     }
                 }
 
-//                System.out.println("Receiver ended");
+                System.out.println("Receiver ended");
             } catch (IOException e) {
 //                throw new RuntimeException(e);
                 System.out.println("У сокета сдохла мать");

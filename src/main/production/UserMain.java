@@ -3,9 +3,7 @@ package main.production;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
+import java.net.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,11 +21,17 @@ public class UserMain {
         {
             InetSocketAddress address = new InetSocketAddress(INET_ADDR, PORT);
             socket.joinGroup(address, null);
-            System.out.println("Choose your ID");
+//            System.out.println("Choose your ID");
 
-            int id = Integer.parseInt(reader.readLine());
-            Set<TimedMember<Integer>> validUsers = new HashSet<>();
-            UserListener listener = new UserListener(socket, id, validUsers);
+//            int id = Integer.parseInt(reader.readLine());
+            int id = UDPSocket.getLocalPort();
+            Set<TimedMember<SocketAddress>> validUsers = new HashSet<>();
+
+
+            SocketAddress my = new InetSocketAddress(
+                    InetAddress.getLocalHost().getHostAddress(),
+                    UDPSocket.getLocalPort());
+            UserListener listener = new UserListener(socket, my, validUsers);
             listener.start();
 
             UserSender sender = new UserSender(UDPSocket, id, address);
