@@ -9,7 +9,9 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class UserMain {
@@ -29,39 +31,59 @@ public class UserMain {
              DatagramSocket UDPSocket = new DatagramSocket();
              BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)))
         {
-            socket.joinGroup(new InetSocketAddress(INET_ADDR, PORT), null);
+            InetSocketAddress address = new InetSocketAddress(INET_ADDR, PORT);
+            socket.joinGroup(address, null);
             System.out.println("Choose your ID");
             int id = Integer.parseInt(reader.readLine());
-            Map<Integer, Integer> userValidityMap = new HashMap<>();
-            UserListener listener = new UserListener(socket, id, userValidityMap);
+//            Map<Integer, Integer> userValidityMap = new HashMap<>();
+            Set<TimedMember> validUsers = new HashSet<>();
+            UserListener listener = new UserListener(socket, id, validUsers);
             listener.start();
 
-            Eventik msg;
-            DatagramPacket msgPacket;
+            UserSender sender = new UserSender(UDPSocket, id, address);
+            sender.start();
 
-            msg = new Eventik(id, Eventik.State.JOIN);
-            msgPacket = new DatagramPacket(msg.getBytes(),
-                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
-            UDPSocket.send(msgPacket);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            String command = "";
+            while (!command.equals("stop")) {
+                System.out.println("enter command");
+                command = reader.readLine();
+                if (command.equals("stop")) {
+                    sender.stop();
+                    listener.close();
+                    System.out.println("Everything is closed\nSet: " + validUsers);
+                }
+                else if(command.equals("see")){
+                    System.out.println("validUsers: " + validUsers);
+                }
             }
 
-            System.out.println(userValidityMap.keySet());
+            //sender.stop();
+//            Eventik msg;
+//            DatagramPacket msgPacket;
+//
+//            msg = new Eventik(id, Eventik.State.JOIN);
+//            msgPacket = new DatagramPacket(msg.getBytes(),
+//                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
+//            UDPSocket.send(msgPacket);
+//
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            System.out.println(validUsers);
+//
+//            msg = new Eventik(id, Eventik.State.DISCONNECT);
+//            msgPacket = new DatagramPacket(msg.getBytes(),
+//                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
+//            UDPSocket.send(msgPacket);
+//
+//
+//            System.out.println("DONE, map: " + validUsers);
+//
 
-            msg = new Eventik(id, Eventik.State.DISCONNECT);
-            msgPacket = new DatagramPacket(msg.getBytes(),
-                    msg.getBytes().length, new InetSocketAddress(INET_ADDR, PORT));
-            UDPSocket.send(msgPacket);
-
-
-            System.out.println("DONE, map: " + userValidityMap.keySet());
-
-
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

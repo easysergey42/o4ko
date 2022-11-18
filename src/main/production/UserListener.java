@@ -13,14 +13,14 @@ public class UserListener {
     static MulticastSocket socket;
     Thread receiver;
     final int id;
-    Map<Integer, Integer> userValidityMap;
-//    Set<TimedMember> validUsers;
+//    Map<Integer, Integer> userValidityMap;
+    Set<TimedMember> validUsers;
 
-    public UserListener(MulticastSocket s, int id_, Map<Integer, Integer> m/*, Set<TimedMember> set*/){
+    public UserListener(MulticastSocket s, int id_, Set<TimedMember> set){
         if(socket == null) socket = s;
         id = id_;
-        userValidityMap = m;
-//        validUsers = set;
+//        userValidityMap = m;
+        validUsers = set;
         receiver = new Thread(() -> {
             byte[] buf = new byte[256];
             DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
@@ -29,12 +29,13 @@ public class UserListener {
                     socket.receive(msgPacket);
                     Eventik msg = Eventik.getEventik(buf);
                     if(msg.message == Eventik.State.DISCONNECT) {
-                        userValidityMap.remove(msg.senderId);
-//                        validUsers.remove(new TimedMember(msg.senderId));
+//                        userValidityMap.remove(msg.senderId);
+                        validUsers.remove(new TimedMember(msg.senderId));
                         if (msg.senderId == id) break;
                     }
                     else if (msg.message == Eventik.State.JOIN || msg.message == Eventik.State.PING){
-                        userValidityMap.put(msg.senderId, 1);
+//                        userValidityMap.put(msg.senderId, 1);
+                        new TimedMember(msg.senderId).addToSet(validUsers);
                     }
                 }
 
