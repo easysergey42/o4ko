@@ -2,15 +2,18 @@ package main.production;
 
 import java.io.*;
 
-public class Eventik implements Serializable {
+public class MyEvent implements Serializable {
     int senderId;
-    public enum State{
+
+    public enum State {
         JOIN,
         PING,
         DISCONNECT
     }
+
     State message;
-    public Eventik(int id, State msg){
+
+    public MyEvent(int id, State msg) {
         senderId = id;
         message = msg;
     }
@@ -22,23 +25,15 @@ public class Eventik implements Serializable {
         return byteStream.toByteArray();
     }
 
-    public static Eventik getEventik(byte[] bytes) throws IOException, ClassNotFoundException {
+    public static MyEvent getEventik(byte[] bytes) throws IOException, ClassNotFoundException {
         ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
         ObjectInputStream objStream = new ObjectInputStream(byteStream);
-        return (Eventik) objStream.readObject();
+        return (MyEvent) objStream.readObject();
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "SenderId = " + senderId + ", message = " + message;
     }
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Eventik e = new Eventik(5, State.JOIN);
-        System.out.println(e);
-        byte[] buf = new byte[256];
-        buf = e.getBytes();
-        Eventik e2 = Eventik.getEventik(buf);
-
-        System.out.println(e2);
-    }
 }
+

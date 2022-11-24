@@ -26,9 +26,9 @@ public class UserListener {
                 while(true) {
                     socket.receive(msgPacket);
 //                    System.out.println(msgPacket.getSocketAddress());//- это должно быть полем TimedMember
-                    Eventik msg = Eventik.getEventik(buf);
+                    MyEvent msg = MyEvent.getEventik(buf);
                     SocketAddress received = msgPacket.getSocketAddress();
-                    if(msg.message == Eventik.State.DISCONNECT) {
+                    if(msg.message == MyEvent.State.DISCONNECT) {
 //                        userValidityMap.remove(msg.senderId);
                         validUsers.remove(new TimedMember<SocketAddress>(received));
                         if (received.equals(mySocketAddress)) break;
@@ -36,9 +36,9 @@ public class UserListener {
                                 "\nActive users: " + validUsers);
 //                        System.out.println("Received:" + received + "\nMy address:" + mySocketAddress);
                     }
-                    else if (msg.message == Eventik.State.JOIN || msg.message == Eventik.State.PING){
+                    else if (msg.message == MyEvent.State.JOIN || msg.message == MyEvent.State.PING){
                         new TimedMember<SocketAddress>(received).addToSet(validUsers);
-                        if (msg.message == Eventik.State.JOIN) {
+                        if (msg.message == MyEvent.State.JOIN) {
                             System.out.println("User " + received + " just joined!" +
                                     "\nActive users: " + validUsers);
                             System.out.flush();
@@ -47,7 +47,8 @@ public class UserListener {
                 }
 
                 System.out.println("Receiver ended");
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
 //                throw new RuntimeException(e);
                 System.out.println("У сокета сдохла мать");
             } catch (ClassNotFoundException e) {

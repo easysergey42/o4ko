@@ -19,6 +19,7 @@ public class UserMain {
              DatagramSocket UDPSocket = new DatagramSocket();
              BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)))
         {
+            //socket.setSoTimeout(500);
             InetSocketAddress address = new InetSocketAddress(INET_ADDR, PORT);
             socket.joinGroup(address, null);
 //            System.out.println("Choose your ID");

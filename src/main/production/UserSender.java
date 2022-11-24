@@ -12,7 +12,7 @@ public class UserSender {
     Thread sender;
     AtomicBoolean isAlive;
     InetSocketAddress address;
-    static DatagramPacket toMessagePacket(Eventik msg, InetSocketAddress address) throws IOException {
+    static DatagramPacket toMessagePacket(MyEvent msg, InetSocketAddress address) throws IOException {
         return new DatagramPacket(msg.getBytes(),
                 msg.getBytes().length, address);
     }
@@ -27,16 +27,16 @@ public class UserSender {
             try {
                 //Connect
 
-                msgPacket = toMessagePacket(new Eventik(id, Eventik.State.JOIN), address_);
+                msgPacket = toMessagePacket(new MyEvent(id, MyEvent.State.JOIN), address_);
                 UDPSocket.send(msgPacket);
                 //ping
-                msgPacket = toMessagePacket(new Eventik(id, Eventik.State.PING), address_);
+                msgPacket = toMessagePacket(new MyEvent(id, MyEvent.State.PING), address_);
                 while(isAlive.get()){
                     UDPSocket.send(msgPacket);
                     Thread.sleep(200);
                 }
                 //disconnect
-                msgPacket = toMessagePacket(new Eventik(id, Eventik.State.DISCONNECT), address_);
+                msgPacket = toMessagePacket(new MyEvent(id, MyEvent.State.DISCONNECT), address_);
                 UDPSocket.send(msgPacket);
 
             } catch (IOException | InterruptedException e) {
